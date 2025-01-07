@@ -207,7 +207,7 @@ class _HomePageState extends State<RegistrationScreen> {
                           color: Colors.blue, size: screenWidth / 7),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           )
