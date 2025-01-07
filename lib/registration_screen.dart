@@ -99,8 +99,8 @@ class _HomePageState extends State<RegistrationScreen> {
     InputImage inputImage = InputImage.fromFile(_image!);
     faces = await faceDetector.processImage(inputImage);
     for (Face face in faces) {
-      Rect faceRect = face.boundingBox;
-      print('Rect = ' + faceRect.toString());
+      // Rect faceRect = face.boundingBox;
+      // print('Rect = ' + faceRect.toString());
 
       // num left = faceRect.left < 0 ? 0:faceRect.left;
       // num top = faceRect.top < 0 ? 0:faceRect.top;
@@ -117,7 +117,7 @@ class _HomePageState extends State<RegistrationScreen> {
       // Recognition recognition = recognizer.recognize(faceImg2, faceRect);
       // showFaceRegistrationDialogue(Uint8List.fromList(img.encodeBmp(faceImg2)), recognition);
     }
-
+    drawRectangleAroundFaces();
     //TODO call the method to perform face recognition on detected faces
   }
 
@@ -174,16 +174,17 @@ class _HomePageState extends State<RegistrationScreen> {
   //   );
   // }
   //TODO draw rectangles
-  // var image;
-  // drawRectangleAroundFaces() async {
-  //   image = await _image?.readAsBytes();
-  //   image = await decodeImageFromList(image);
-  //   print("${image.width}   ${image.height}");
-  //   setState(() {
-  //     image;
-  //     faces;
-  //   });
-  // }
+  var image;
+
+  drawRectangleAroundFaces() async {
+    image = await _image?.readAsBytes();
+    image = await decodeImageFromList(image);
+    print("${image.width}   ${image.height}");
+    setState(() {
+      image;
+      faces;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,27 +195,31 @@ class _HomePageState extends State<RegistrationScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _image != null
-              ? Container(
-                  margin: const EdgeInsets.only(top: 100),
-                  width: screenWidth - 50,
-                  height: screenWidth - 50,
-                  child: Image.file(_image!),
-                )
+          image != null
+              ?
               // Container(
-              //   margin: const EdgeInsets.only(
-              //       top: 60, left: 30, right: 30, bottom: 0),
-              //   child: FittedBox(
-              //     child: SizedBox(
-              //       width: image.width.toDouble(),
-              //       height: image.width.toDouble(),
-              //       child: CustomPaint(
-              //         painter: FacePainter(
-              //             facesList: faces, imageFile: image),
-              //       ),
-              //     ),
-              //   ),
-              // )
+              //         margin: const EdgeInsets.only(top: 100),
+              //         width: screenWidth - 50,
+              //         height: screenWidth - 50,
+              //         child: Image.file(_image!),
+              //       )
+              Container(
+                  margin: const EdgeInsets.only(
+                      top: 60, left: 30, right: 30, bottom: 0),
+                  child: FittedBox(
+                    child: SizedBox(
+                      width: image.width.toDouble(),
+                      height: image.width.toDouble(),
+                      child: CustomPaint(
+                        painter: FacePainter(
+                          facesList: faces,
+                          // facesList: uniqueFaces,
+                          imageFile: image,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
               : Container(
                   margin: const EdgeInsets.only(top: 100),
                   child: Image.asset(
@@ -273,29 +278,40 @@ class _HomePageState extends State<RegistrationScreen> {
   }
 }
 
-// class FacePainter extends CustomPainter {
-//   List<Face> facesList;
-//   dynamic imageFile;
-//   FacePainter({required this.facesList, @required this.imageFile});
-//
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     if (imageFile != null) {
-//       canvas.drawImage(imageFile, Offset.zero, Paint());
-//     }
-//
-//     Paint p = Paint();
-//     p.color = Colors.red;
-//     p.style = PaintingStyle.stroke;
-//     p.strokeWidth = 3;
-//
-//     for (Face face in facesList) {
-//       canvas.drawRect(face.boundingBox, p);
-//     }
-//   }
-//
-//   @override
-//   bool shouldRepaint(CustomPainter oldDelegate) {
-//     return true;
-//   }
-// }
+class FacePainter extends CustomPainter {
+  List<Face> facesList;
+  dynamic imageFile;
+
+  FacePainter({
+    required this.facesList,
+    @required this.imageFile,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (imageFile != null) {
+      canvas.drawImage(
+        imageFile,
+        Offset.zero,
+        Paint(),
+      );
+    }
+
+    Paint p = Paint();
+    p.color = Colors.red;
+    p.style = PaintingStyle.stroke;
+    p.strokeWidth = 3;
+
+    for (Face face in facesList) {
+      canvas.drawRect(
+        face.boundingBox,
+        p,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+}
