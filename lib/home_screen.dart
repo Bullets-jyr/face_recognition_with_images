@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'RecognitionScreen.dart';
-import 'RegistrationScreen.dart';
+import 'recognition_screen.dart';
+import 'registration_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

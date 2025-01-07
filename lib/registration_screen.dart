@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 
@@ -18,6 +19,7 @@ class _HomePageState extends State<RegistrationScreen> {
   File? _image;
 
   //TODO declare detector
+  late FaceDetector faceDetector;
 
   //TODO declare face recognizer
 
@@ -28,6 +30,38 @@ class _HomePageState extends State<RegistrationScreen> {
     imagePicker = ImagePicker();
 
     //TODO initialize face detector
+    // FaceDetectorOptions({
+    //   this.enableClassification = false,
+    //   enableClassification
+    //   그 사람의 얼굴이 눈을 뜨고 있는지 감고 있는지를 감지하는 것입니다.
+    //   마찬가지로, 얼굴이 진지하거나 웃고 있는지도 감지할 수 있습니다.
+
+    //   this.enableLandmarks = false,
+    //   enableLandmarks
+    //   코, 눈, 뺨, 입 등 다양한 얼굴 랜드마크의 위치도 알아야 합니까?
+
+    //   this.enableContours = false,
+    //   enableContours
+    //   그런 다음 랜드마크와 유사한 윤곽선 감지를 얻었습니다.
+    //   그러나 랜드마크를 사용하면 정확한 위치나 다른 랜드마크를 나타내는 지점을 얻을 수 있습니다.
+
+    //   this.enableTracking = false,
+    //   enableTracking
+    //   그런 다음 얼굴 추적을 활성화하거나 비활성화할 수도 있습니다.
+    //   따라서 이 기능을 활성화하면 얼굴 감지 모델은 각 얼굴에 고유한 ID를 할당하려고 시도합니다.
+
+    //   this.minFaceSize = 0.1,
+    //   minFaceSize
+    //   그런 다음 감지해야 하는 최소 얼굴 크기를 지정할 수 있습니다.
+
+    //   this.performanceMode = FaceDetectorMode.fast,
+
+    // })
+    final options = FaceDetectorOptions(
+      // enableTracking: true,
+      performanceMode: FaceDetectorMode.accurate,
+    );
+    faceDetector = FaceDetector(options: options);
 
     //TODO initialize face recognizer
   }
@@ -56,11 +90,33 @@ class _HomePageState extends State<RegistrationScreen> {
   }
 
   //TODO face detection code here
+  List<Face> faces = [];
 
   doFaceDetection() async {
     //TODO remove rotation of camera images
 
     //TODO passing input to face detector and getting detected faces
+    InputImage inputImage = InputImage.fromFile(_image!);
+    faces = await faceDetector.processImage(inputImage);
+    for (Face face in faces) {
+      Rect faceRect = face.boundingBox;
+      print('Rect = ' + faceRect.toString());
+
+      // num left = faceRect.left < 0 ? 0:faceRect.left;
+      // num top = faceRect.top < 0 ? 0:faceRect.top;
+      // num right = faceRect.right > image.width ? image.width-1 : faceRect.right;
+      // num bottom = faceRect.bottom > image.height ? image.height-1 : faceRect.bottom;
+      // num width = right - left;
+      // num height = bottom - top;
+
+      //TODO crop face
+      // final bytes = _image!.readAsBytesSync();//await File(cropedFace!.path).readAsBytes();
+      // img.Image? faceImg = img.decodeImage(bytes!);
+      // img.Image faceImg2 = img.copyCrop(faceImg!,x:left.toInt(),y:top.toInt(),width:width.toInt(),height:height.toInt());
+      //
+      // Recognition recognition = recognizer.recognize(faceImg2, faceRect);
+      // showFaceRegistrationDialogue(Uint8List.fromList(img.encodeBmp(faceImg2)), recognition);
+    }
 
     //TODO call the method to perform face recognition on detected faces
   }
