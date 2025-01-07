@@ -95,27 +95,45 @@ class _HomePageState extends State<RegistrationScreen> {
   doFaceDetection() async {
     //TODO remove rotation of camera images
 
+    // get width, height
+    image = await _image?.readAsBytes();
+    image = await decodeImageFromList(image);
+
     //TODO passing input to face detector and getting detected faces
     InputImage inputImage = InputImage.fromFile(_image!);
     faces = await faceDetector.processImage(inputImage);
     for (Face face in faces) {
-      // Rect faceRect = face.boundingBox;
-      // print('Rect = ' + faceRect.toString());
+      Rect faceRect = face.boundingBox;
+      print('Rect = ' + faceRect.toString());
 
-      // num left = faceRect.left < 0 ? 0:faceRect.left;
-      // num top = faceRect.top < 0 ? 0:faceRect.top;
-      // num right = faceRect.right > image.width ? image.width-1 : faceRect.right;
-      // num bottom = faceRect.bottom > image.height ? image.height-1 : faceRect.bottom;
-      // num width = right - left;
-      // num height = bottom - top;
+      num left = faceRect.left < 0 ? 0 : faceRect.left;
+      num top = faceRect.top < 0 ? 0 : faceRect.top;
+      num right =
+          faceRect.right > image.width ? image.width - 1 : faceRect.right;
+      num bottom =
+          faceRect.bottom > image.height ? image.height - 1 : faceRect.bottom;
+      num width = right - left;
+      num height = bottom - top;
 
       //TODO crop face
-      // final bytes = _image!.readAsBytesSync();//await File(cropedFace!.path).readAsBytes();
-      // img.Image? faceImg = img.decodeImage(bytes!);
-      // img.Image faceImg2 = img.copyCrop(faceImg!,x:left.toInt(),y:top.toInt(),width:width.toInt(),height:height.toInt());
-      //
+      final bytes = _image!
+          .readAsBytesSync(); //await File(cropedFace!.path).readAsBytes();
+      img.Image? faceImg = img.decodeImage(bytes!);
+      img.Image faceImg2 = img.copyCrop(
+        faceImg!,
+        x: left.toInt(),
+        y: top.toInt(),
+        width: width.toInt(),
+        height: height.toInt(),
+      );
+
       // Recognition recognition = recognizer.recognize(faceImg2, faceRect);
-      // showFaceRegistrationDialogue(Uint8List.fromList(img.encodeBmp(faceImg2)), recognition);
+      // showFaceRegistrationDialogue(
+      //   Uint8List.fromList(
+      //     img.encodeBmp(faceImg2),
+      //   ),
+      //   recognition,
+      // );
     }
     drawRectangleAroundFaces();
     //TODO call the method to perform face recognition on detected faces
@@ -264,8 +282,11 @@ class _HomePageState extends State<RegistrationScreen> {
                     child: SizedBox(
                       width: screenWidth / 2 - 70,
                       height: screenWidth / 2 - 70,
-                      child: Icon(Icons.camera,
-                          color: Colors.blue, size: screenWidth / 7),
+                      child: Icon(
+                        Icons.camera,
+                        color: Colors.blue,
+                        size: screenWidth / 7,
+                      ),
                     ),
                   ),
                 ),
@@ -292,6 +313,7 @@ class FacePainter extends CustomPainter {
     if (imageFile != null) {
       canvas.drawImage(
         imageFile,
+        // 0, 0 또는 캔버스의 왼쪽 상단 지점
         Offset.zero,
         Paint(),
       );
