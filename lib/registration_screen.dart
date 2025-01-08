@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
+import 'dart:ui' as ui show Codec, FrameInfo, Image, ImmutableBuffer;
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -17,6 +18,9 @@ class _HomePageState extends State<RegistrationScreen> {
   //TODO declare variables
   late ImagePicker imagePicker;
   File? _image;
+
+  List<Face> faces = [];
+  List<Face> largeFaces = [];
 
   //TODO declare detector
   late FaceDetector faceDetector;
@@ -58,6 +62,11 @@ class _HomePageState extends State<RegistrationScreen> {
 
     // })
     final options = FaceDetectorOptions(
+      enableClassification: false,
+      enableLandmarks: true,
+      enableContours: false,
+      enableTracking: false,
+      minFaceSize: 0.1,
       // enableTracking: true,
       performanceMode: FaceDetectorMode.accurate,
     );
@@ -79,6 +88,10 @@ class _HomePageState extends State<RegistrationScreen> {
 
   //TODO choose image using gallery
   _imgFromGallery() async {
+    faces.clear();
+    largeFaces.clear();
+    // maxArea = 0;
+    // largestFace = null;
     XFile? pickedFile =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -90,34 +103,51 @@ class _HomePageState extends State<RegistrationScreen> {
   }
 
   //TODO face detection code here
-  List<Face> faces = [];
+  // List<Face> faces = [];
+  // List<Face> largeFaces = [];
+
+  // 가장 큰 얼굴 찾기
+  Face? largestFace;
+  double maxArea = 0;
 
   doFaceDetection() async {
     //TODO remove rotation of camera images
 
     // get width, height
-    image = await _image?.readAsBytes();
-    image = await decodeImageFromList(image);
+    Uint8List? readAsBytesImage = await _image?.readAsBytes();
+    ui.Image decodeImage = await decodeImageFromList(readAsBytesImage!);
 
     //TODO passing input to face detector and getting detected faces
     InputImage inputImage = InputImage.fromFile(_image!);
     faces = await faceDetector.processImage(inputImage);
+
+    // 내림차순 정렬
+    faces.sort((a, b) {
+      final double areaA = a.boundingBox.width * a.boundingBox.height;
+      final double areaB = b.boundingBox.width * b.boundingBox.height;
+      return areaB.compareTo(areaA);
+    });
+
     for (Face face in faces) {
       Rect faceRect = face.boundingBox;
       print('Rect = ' + faceRect.toString());
 
+      // Bounding box의 면적 계산
+      // final double area = faceRect.width * faceRect.height;
+      // if (area > maxArea) {
+      //   maxArea = area;
+      //   largestFace = face;
+      // }
+
       num left = faceRect.left < 0 ? 0 : faceRect.left;
       num top = faceRect.top < 0 ? 0 : faceRect.top;
-      num right =
-          faceRect.right > image.width ? image.width - 1 : faceRect.right;
-      num bottom =
-          faceRect.bottom > image.height ? image.height - 1 : faceRect.bottom;
+      num right = faceRect.right > decodeImage.width ? decodeImage.width - 1 : faceRect.right;
+      num bottom = faceRect.bottom > decodeImage.height ? decodeImage.height - 1 : faceRect.bottom;
       num width = right - left;
       num height = bottom - top;
 
       //TODO crop face
-      final bytes = _image!
-          .readAsBytesSync(); //await File(cropedFace!.path).readAsBytes();
+      final bytes = _image!.readAsBytesSync(); //await File(cropedFace!.path).readAsBytes();
       img.Image? faceImg = img.decodeImage(bytes!);
       img.Image faceImg2 = img.copyCrop(
         faceImg!,
@@ -135,6 +165,10 @@ class _HomePageState extends State<RegistrationScreen> {
       //   recognition,
       // );
     }
+
+    // largeFaces.add(largestFace!);
+    // print('largeFaces length :: ${largeFaces.length}');
+
     drawRectangleAroundFaces();
     //TODO call the method to perform face recognition on detected faces
   }
@@ -201,6 +235,7 @@ class _HomePageState extends State<RegistrationScreen> {
     setState(() {
       image;
       faces;
+      // largeFaces;
     });
   }
 
@@ -231,7 +266,7 @@ class _HomePageState extends State<RegistrationScreen> {
                       child: CustomPaint(
                         painter: FacePainter(
                           facesList: faces,
-                          // facesList: uniqueFaces,
+                          // facesList: largeFaces,
                           imageFile: image,
                         ),
                       ),
