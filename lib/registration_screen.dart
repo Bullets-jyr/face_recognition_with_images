@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:face_recognition_with_images/ml/recognition.dart';
+import 'package:face_recognition_with_images/ml/recognizer.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +28,7 @@ class _HomePageState extends State<RegistrationScreen> {
   late FaceDetector faceDetector;
 
   //TODO declare face recognizer
+  late Recognizer recognizer;
 
   @override
   void initState() {
@@ -73,6 +76,7 @@ class _HomePageState extends State<RegistrationScreen> {
     faceDetector = FaceDetector(options: options);
 
     //TODO initialize face recognizer
+    recognizer = Recognizer();
   }
 
   //TODO capture image using camera
@@ -149,6 +153,7 @@ class _HomePageState extends State<RegistrationScreen> {
       //TODO crop face
       final bytes = _image!.readAsBytesSync(); //await File(cropedFace!.path).readAsBytes();
       img.Image? faceImg = img.decodeImage(bytes!);
+      // crop image
       img.Image faceImg2 = img.copyCrop(
         faceImg!,
         x: left.toInt(),
@@ -157,7 +162,7 @@ class _HomePageState extends State<RegistrationScreen> {
         height: height.toInt(),
       );
 
-      // Recognition recognition = recognizer.recognize(faceImg2, faceRect);
+      Recognition recognition = recognizer.recognize(faceImg2, faceRect);
       // showFaceRegistrationDialogue(
       //   Uint8List.fromList(
       //     img.encodeBmp(faceImg2),
