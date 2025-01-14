@@ -1,3 +1,4 @@
+import 'package:face_recognition_with_images/detection_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -34,9 +35,12 @@ class _HomePageState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegistrationScreen()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegistrationScreen(),
+                        // builder: (context) => const DetectionScreen(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                       minimumSize: Size(screenWidth - 30, 50)),
@@ -48,9 +52,11 @@ class _HomePageState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const RecognitionScreen()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RecognitionScreen(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                       minimumSize: Size(screenWidth - 30, 50)),

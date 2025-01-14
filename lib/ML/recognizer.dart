@@ -6,6 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'recognition.dart';
 
+/// for registration_screen.dart
 class Recognizer {
   late Interpreter interpreter;
   late InterpreterOptions _interpreterOptions;

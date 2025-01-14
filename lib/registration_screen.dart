@@ -21,9 +21,6 @@ class _HomePageState extends State<RegistrationScreen> {
   late ImagePicker imagePicker;
   File? _image;
 
-  List<Face> faces = [];
-  List<Face> largeFaces = [];
-
   //TODO declare detector
   late FaceDetector faceDetector;
 
@@ -107,12 +104,9 @@ class _HomePageState extends State<RegistrationScreen> {
   }
 
   //TODO face detection code here
-  // List<Face> faces = [];
-  // List<Face> largeFaces = [];
-
-  // 가장 큰 얼굴 찾기
-  Face? largestFace;
-  double maxArea = 0;
+  List<Face> faces = [];
+  List<Face> largeFaces = [];
+  double ratio = 0;
 
   doFaceDetection() async {
     //TODO remove rotation of camera images
@@ -132,26 +126,74 @@ class _HomePageState extends State<RegistrationScreen> {
       return areaB.compareTo(areaA);
     });
 
+    ratio = ((faces[1].boundingBox.width * faces[1].boundingBox.height) /
+            (faces[0].boundingBox.width * faces[0].boundingBox.height)) *
+        100;
+    print('face ratio :: $ratio');
+
+    // rect1의 왼쪽 경계
+    final x1 = faces[0].boundingBox.left;
+    // rect1의 위쪽 경계
+    final y1 = faces[0].boundingBox.top;
+    // rect1의 오른쪽 경계
+    final x2 = faces[0].boundingBox.right;
+    // rect1의 아래쪽 경계
+    final y2 = faces[0].boundingBox.bottom;
+
+    // rect2의 왼쪽 경계
+    final x3 = faces[1].boundingBox.left;
+    // rect2의 위쪽 경계
+    final y3 = faces[1].boundingBox.top;
+    // rect2의 오른쪽 경계
+    final x4 = faces[1].boundingBox.right;
+    // rect2의 아래쪽 경계
+    final y4 = faces[1].boundingBox.bottom;
+
+    // 교차 영역의 좌표 계산
+    // 교차 영역의 왼쪽 경계
+    final interLeft = x1 > x3 ? x1 : x3;
+    // 교차 영역의 위쪽 경계
+    final interTop = y1 > y3 ? y1 : y3;
+    // 교차 영역의 오른쪽 경계
+    final interRight = x2 < x4 ? x2 : x4;
+    // 교차 영역의 아래쪽 경계
+    final interBottom = y2 < y4 ? y2 : y4;
+
+    // 교차 영역의 너비와 높이 계산
+    final interWidth = (interRight - interLeft).clamp(0, double.infinity);
+    final interHeight = (interBottom - interTop).clamp(0, double.infinity);
+
+    // 교차 영역의 면적 계산
+    final intersection = interWidth * interHeight;
+
+    // 각 사각형의 면적 계산
+    final area1 = faces[0].boundingBox.width * faces[0].boundingBox.height;
+    final area2 = faces[1].boundingBox.width * faces[1].boundingBox.height;
+
+    // 합집합 면적 계산
+    final union = area1 + area2 - intersection;
+
+    // IoU
+    print('===== intersection / union :: ${intersection / union}');
+
     for (Face face in faces) {
       Rect faceRect = face.boundingBox;
       print('Rect = ' + faceRect.toString());
 
-      // Bounding box의 면적 계산
-      // final double area = faceRect.width * faceRect.height;
-      // if (area > maxArea) {
-      //   maxArea = area;
-      //   largestFace = face;
-      // }
-
       num left = faceRect.left < 0 ? 0 : faceRect.left;
       num top = faceRect.top < 0 ? 0 : faceRect.top;
-      num right = faceRect.right > decodeImage.width ? decodeImage.width - 1 : faceRect.right;
-      num bottom = faceRect.bottom > decodeImage.height ? decodeImage.height - 1 : faceRect.bottom;
+      num right = faceRect.right > decodeImage.width
+          ? decodeImage.width - 1
+          : faceRect.right;
+      num bottom = faceRect.bottom > decodeImage.height
+          ? decodeImage.height - 1
+          : faceRect.bottom;
       num width = right - left;
       num height = bottom - top;
 
       //TODO crop face
-      final bytes = _image!.readAsBytesSync(); //await File(cropedFace!.path).readAsBytes();
+      final bytes = _image!
+          .readAsBytesSync(); //await File(cropedFace!.path).readAsBytes();
       img.Image? faceImg = img.decodeImage(bytes!);
       // crop image
       img.Image faceImg2 = img.copyCrop(
@@ -162,6 +204,8 @@ class _HomePageState extends State<RegistrationScreen> {
         height: height.toInt(),
       );
 
+      // 두 번째로 얼굴의 위치를 지정해야 합니다.
+      // 따라서 얼굴의 위치는 이 경계 상자 또는 직사각형 개체 내부에 저장됩니다.
       Recognition recognition = recognizer.recognize(faceImg2, faceRect);
       // showFaceRegistrationDialogue(
       //   Uint8List.fromList(

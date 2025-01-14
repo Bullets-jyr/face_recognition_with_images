@@ -73,6 +73,7 @@ flutter:
     - datasets/angles/
     - datasets/backgrounds/
     - datasets/falsities/
+    - datasets/similar_face_size/
     - datasets/smallnesses/
     - datasets/truths/
     - datasets/truths_new/
