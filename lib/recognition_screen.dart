@@ -102,7 +102,16 @@ class _HomePageState extends State<RecognitionScreen> {
           width: width.toInt(),
           height: height.toInt());
 
+      // 여기 인식 화면 도트 내부에서 이 인식 개체를 얻은 후 다음을 사용할 수 있습니다.
+      // 우리 모델의 예측이 정확한지 위해 이 인식 객체의 거리 속성 아니면,
+      // 따라서 해당 거리 속성의 값이 0에 가까우면 이는 우리의 예측 또는 인식이
+      // 맞습니다.
+      // 그리고 그 값이 1 또는 1.25보다 큰 경우,
+      // 따라서 이 경우 우리의 예측이 정확하지 않다고 간주할 수 있습니다.
       Recognition recognition = recognizer.recognize(faceImg2, faceRect);
+      if (recognition.distance > 1.25) {
+        recognition.name = 'Unknown';
+      }
       recognitions.add(recognition);
       print("Recognized faces " + recognition.name);
       //showFaceRegistrationDialogue(Uint8List.fromList(img.encodePng(faceImg2)), recognition);
