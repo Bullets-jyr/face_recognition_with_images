@@ -65,6 +65,12 @@ class Recognizer {
 
   Future<void> loadModel() async {
     try {
+      // 따라서 모바일 애플리케이션 내에서 머신러닝 모델을 사용하려면 이를 변환해야 합니다.
+      // tflite 형식으로 모델을 만듭니다.
+      // 그리고 일반 모델을 Tflite 형식으로 변환하기 위해 TensorFlow Lite변환기를 사용합니다.
+      // 하지만 모바일 애플리케이션 내에서 해당 모델을 로드하려는 경우 모델을 변환한 후 TensorFlow를 사용합니다.
+      // Lite 인터프리터는 이름에서 알 수 있듯이 실제로 해당 모델을 해석하는 것입니다.
+      // 그래서 여기서 우리는 인터프리터 객체를 초기화하고 있습니다.
       interpreter = await Interpreter.fromAsset(modelName, options: _interpreterOptions);
     } catch (e) {
       print('Unable to create interpreter, Caught Exception: ${e.toString()}');
