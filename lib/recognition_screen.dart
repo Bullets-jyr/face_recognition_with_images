@@ -66,7 +66,11 @@ class _HomePageState extends State<RecognitionScreen> {
   //TODO face detection code here
   List<Face> faces = [];
 
+  // List<Recognition> recognitions = [];
+
   doFaceDetection() async {
+    // 하지만 여기에서는 얼굴 감지를 시작할 때 간단히 이 목록을 재설정하거나 지울 수 있습니다.
+    // 사용자가 다른 이미지를 선택하려는 경우 다음에 대한 인식을 표시하고 싶지 않기 때문입니다.
     recognitions.clear();
     //TODO remove rotation of camera images
     _image = await removeRotation(_image!);
@@ -125,7 +129,10 @@ class _HomePageState extends State<RecognitionScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Face Registration", textAlign: TextAlign.center),
+        title: const Text(
+          "Face Registration",
+          textAlign: TextAlign.center,
+        ),
         alignment: Alignment.center,
         content: SizedBox(
           height: 340,
@@ -143,27 +150,33 @@ class _HomePageState extends State<RecognitionScreen> {
               SizedBox(
                 width: 200,
                 child: TextField(
-                    controller: textEditingController,
-                    decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        hintText: "Enter Name")),
+                  controller: textEditingController,
+                  decoration: const InputDecoration(
+                    fillColor: Colors.white,
+                    filled: true,
+                    hintText: "Enter Name",
+                  ),
+                ),
               ),
               const SizedBox(
                 height: 10,
               ),
               ElevatedButton(
-                  onPressed: () {
-                    textEditingController.text = "";
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                onPressed: () {
+                  textEditingController.text = "";
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
                       content: Text("Face Registered"),
-                    ));
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      minimumSize: const Size(200, 40)),
-                  child: const Text("Register"))
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size(200, 40),
+                ),
+                child: const Text("Register"),
+              ),
             ],
           ),
         ),
@@ -214,7 +227,8 @@ class _HomePageState extends State<RecognitionScreen> {
                       height: image.width.toDouble(),
                       child: CustomPaint(
                         painter: FacePainter(
-                          facesList: recognitions,
+                          // facesList: faces,
+                          recognitionsList: recognitions,
                           imageFile: image,
                         ),
                       ),
@@ -280,11 +294,16 @@ class _HomePageState extends State<RecognitionScreen> {
 }
 
 class FacePainter extends CustomPainter {
-  List<Face> facesList;
+  // 하지만 이제 이 얼굴 목록과 함께 얼굴 이름도 전달해야 합니다.
+  // 또는 얼굴의 위치와 이름이 다음과 같이 존재하는 목록을 여기에 전달해야 합니다.
+  // 따라서 이 얼굴 목록 대신 이 얼굴 화가 클래스에 인식 목록을 전달할 수 있습니다.
+  // List<Face> facesList;
+  List<Recognition> recognitionsList;
   dynamic imageFile;
 
   FacePainter({
-    required this.facesList,
+    // required this.facesList,
+    required this.recognitionsList,
     @required this.imageFile,
   });
 
@@ -299,8 +318,37 @@ class FacePainter extends CustomPainter {
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 3;
 
-    for (Face face in facesList) {
-      canvas.drawRect(face.boundingBox, p);
+    // for (Face face in facesList) {
+    //   canvas.drawRect(face.boundingBox, p);
+    // }
+
+    for (Recognition recognition in recognitionsList) {
+      canvas.drawRect(recognition.location, p);
+
+      TextSpan span = TextSpan(
+        style: const TextStyle(
+          // color: Colors.white,
+          color: Colors.red,
+          fontSize: 30,
+        ),
+        text: "${recognition.name}  ${recognition.distance.toStringAsFixed(2)}",
+      );
+      TextPainter tp = TextPainter(
+        text: span,
+        textAlign: TextAlign.left,
+        textDirection: TextDirection.ltr,
+      );
+      tp.layout();
+      tp.paint(
+        canvas,
+        // 두 번째 매개변수는 텍스트를 그리려는 텍스트의 위치입니다.
+        // 따라서 여기에 오프셋 객체를 전달하겠습니다.
+        // 그런 다음 텍스트가 위치할 왼쪽 및 위쪽 지점이나 x 및 y 지점을 지정해야 합니다.
+        Offset(
+          recognition.location.left,
+          recognition.location.top,
+        ),
+      );
     }
   }
 
