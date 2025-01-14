@@ -108,6 +108,8 @@ class _HomePageState extends State<RecognitionScreen> {
       // 맞습니다.
       // 그리고 그 값이 1 또는 1.25보다 큰 경우,
       // 따라서 이 경우 우리의 예측이 정확하지 않다고 간주할 수 있습니다.
+
+      // 그리고 잘린 얼굴을 이 메서드와 경계 상자에 전달합니다.
       Recognition recognition = recognizer.recognize(faceImg2, faceRect);
       if (recognition.distance > 1.25) {
         recognition.name = 'Unknown';
