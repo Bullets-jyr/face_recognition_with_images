@@ -236,6 +236,7 @@ class _HomePageState extends State<RegistrationScreen> {
 
   //TODO Face Registration Dialogue
   TextEditingController textEditingController = TextEditingController();
+
   showFaceRegistrationDialogue(Uint8List cropedFace, Recognition recognition) {
     showDialog(
       context: context,
@@ -258,11 +259,13 @@ class _HomePageState extends State<RegistrationScreen> {
               SizedBox(
                 width: 200,
                 child: TextField(
-                    controller: textEditingController,
-                    decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        hintText: "Enter Name")),
+                  controller: textEditingController,
+                  decoration: const InputDecoration(
+                    fillColor: Colors.white,
+                    filled: true,
+                    hintText: "Enter Name",
+                  ),
+                ),
               ),
               const SizedBox(
                 height: 10,
@@ -270,12 +273,16 @@ class _HomePageState extends State<RegistrationScreen> {
               ElevatedButton(
                 onPressed: () {
                   recognizer.registerFaceInDB(
-                      textEditingController.text, recognition.embeddings);
+                    textEditingController.text,
+                    recognition.embeddings,
+                  );
                   textEditingController.text = "";
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Face Registered"),
-                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Face Registered"),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   // primary: Colors.blue,
